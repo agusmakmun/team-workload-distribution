@@ -1,0 +1,31 @@
+{
+  "teamMembers": [
+    {
+      "id": "example-member-1",
+      "name": "Team Member 1",
+      "order": 0,
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "example-member-2", 
+      "name": "Team Member 2",
+      "order": 1,
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "example-task-1",
+      "title": "Example Task",
+      "score": 5,
+      "deadline": "2025-12-31",
+      "assignedTo": "example-member-1",
+      "priority": 0,
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "lastUpdated": "2025-01-01T00:00:00.000Z"
+}
