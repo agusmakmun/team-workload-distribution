@@ -141,3 +141,7 @@ data/data.json
 
 # shadcn/ui generated files (keep components.json but ignore temp files)
 components.json.bak
+
+# Docker
+.docker/
+docker-compose.override.yml

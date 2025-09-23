@@ -92,6 +92,29 @@ A simple, intuitive React.js application for managing and visualizing task prior
 
 **Note**: The database file (`data/data.json`) is created automatically with sample data if it doesn't exist.
 
+### 🐳 Docker Installation (Alternative)
+
+If you prefer using Docker:
+
+```bash
+# Clone the repository
+git clone https://github.com/agusmakmun/team-workload-distribution.git
+cd team-priority
+
+# Run with Docker Compose
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop the application
+docker-compose down
+```
+
+The application will be available at:
+- **Frontend**: http://localhost:5173
+- **API**: http://localhost:3001
+
 ## 📊 Database
 
 The application uses a local JSON file (`data/data.json`) for data persistence. This file is automatically created by the server and contains all team members and tasks.
