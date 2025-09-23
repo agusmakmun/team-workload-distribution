@@ -64,7 +64,7 @@ A simple, intuitive React.js application for managing and visualizing task prior
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/agusmakmun/team-workload-distribution.git
    cd team-priority
    ```
 
