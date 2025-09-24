@@ -9,14 +9,18 @@ A simple, intuitive React.js application for managing and visualizing task prior
 ## 🚀 Features
 
 ### ✨ Core Functionality
-- **📝 Task Management**: Create, edit, and delete tasks with titles, scores, and optional deadlines
+- **📝 Task Management**: Create, edit, delete, and complete tasks with titles, scores, and optional deadlines
+- **✅ Task Completion System**: Mark tasks as done, view completion history, and restore completed tasks
+- **🧹 Bulk Operations**: Clear all completed tasks for any team member with confirmation
 - **👥 Team Member Management**: Add, edit, and remove team members with custom modal dialogs
 - **🎯 Dual Drag & Drop**: 
   - Reorder tasks within team member sections
   - Reorder team members themselves
-- **📊 Visual Workload Distribution**: Real-time bar chart showing task scores per team member
+- **📊 Enhanced Workload Distribution**: Real-time stacked bar chart showing both active and completed task scores
+- **📈 Task Analytics**: Visual breakdown of active vs completed tasks with color-coded indicators
 - **💾 JSON Database**: Local file-based storage with automatic persistence via RESTful API
 - **🔄 Auto-Recovery**: Database file created automatically if missing
+- **📚 API Documentation**: Interactive Swagger UI documentation at `/api/docs`
 
 ### 🎨 User Interface
 - **🎭 Modern Design**: Built with shadcn/ui components for consistent, accessible UI
@@ -51,6 +55,7 @@ A simple, intuitive React.js application for managing and visualizing task prior
 - **Runtime**: Node.js 18+
 - **Framework**: Express.js for RESTful API
 - **Database**: JSON file-based storage (`data/data.json`)
+- **API Documentation**: Swagger UI with interactive testing
 - **CORS**: Enabled for local development
 - **UUID**: For generating unique IDs
 
@@ -92,6 +97,27 @@ A simple, intuitive React.js application for managing and visualizing task prior
 
 **Note**: The database file (`data/data.json`) is created automatically with sample data if it doesn't exist.
 
+## 📚 API Documentation
+
+The application includes comprehensive API documentation powered by Swagger UI:
+
+- **Access URL**: http://localhost:3001/api/docs
+- **Interactive Testing**: Test all API endpoints directly from the browser
+- **Complete Schemas**: Full data model documentation for Task, TeamMember, and AppData
+- **Request/Response Examples**: See exactly what data to send and expect back
+
+### Available API Endpoints:
+- `GET /api/data` - Retrieve all application data
+- `PUT /api/data` - Update all application data
+- `POST /api/tasks` - Create a new task
+- `PUT /api/tasks/{id}` - Update an existing task
+- `DELETE /api/tasks/{id}` - Delete a task
+- `PUT /api/tasks/reorder` - Reorder tasks within team member sections
+- `PUT /api/team-members/reorder` - Reorder team member display order
+- `GET /api/health` - API health check
+
+The Swagger documentation provides detailed request/response schemas, example payloads, and allows you to test API calls directly from the interface.
+
 ### 🐳 Docker Installation (Alternative)
 
 If you prefer using Docker:
@@ -114,6 +140,7 @@ docker-compose down
 The application will be available at:
 - **Frontend**: http://localhost:5173
 - **API**: http://localhost:3001
+- **API Docs**: http://localhost:3001/api/docs
 
 ## 📊 Database
 
@@ -147,11 +174,16 @@ The application comes with sample data including three team members (John, Doe, 
 ### Managing Tasks
 - **✏️ Edit**: Click the edit icon on any task card to modify details
 - **🗑️ Delete**: Click the trash icon (shows custom confirmation modal)
+- **✅ Mark as Done**: Click the checkmark icon to complete tasks
+- **📜 View History**: Click the "History" button to see completed tasks for each team member
+- **🔄 Restore Tasks**: Restore completed tasks back to active status from history view
+- **🧹 Clear All**: Remove all completed tasks for a team member (with confirmation)
 - **🎯 Reorder Tasks**: Drag and drop tasks within a team member's section to change priority
 - **📊 Visual Indicators**: 
   - 🟡 Yellow background: Deadline within 3 days
   - 🔴 Red background: Overdue tasks
   - 🟣 Purple score badges: Task complexity points
+  - 🟢 Green background: Completed tasks in history view
 
 ### Team Member Management
 - **👥 Reorder Members**: Drag and drop entire team member cards to change display order
@@ -160,11 +192,14 @@ The application comes with sample data including three team members (John, Doe, 
 - **⚠️ Validation**: Prevents deletion of last team member
 
 ### Understanding the Chart
-The bar chart at the top shows:
+The enhanced stacked bar chart at the top shows:
 - **X-axis**: Team member names
-- **Y-axis**: Total task scores
-- **Bars**: Height represents workload distribution
-- **Summary Cards**: Individual stats for each team member
+- **Y-axis**: Task scores (stacked view)
+- **Purple Bars**: Active task scores (current workload)
+- **Green Bars**: Completed task scores (achievement tracking)
+- **Legend**: Color-coded legend for easy interpretation
+- **Summary Cards**: Detailed stats showing active/completed task counts and scores
+- **Real-time Updates**: Chart updates instantly when tasks are completed or restored
 
 ## 🏗️ Project Structure
 
@@ -172,17 +207,18 @@ The bar chart at the top shows:
 src/
 ├── components/           # React components
 │   ├── Header.tsx       # Application header with actions
-│   ├── WorkloadChart.tsx # Bar chart visualization
-│   ├── TaskCard.tsx     # Individual task display
-│   ├── TeamMemberSection.tsx # Team member task lists
+│   ├── WorkloadChart.tsx # Enhanced stacked bar chart visualization
+│   ├── TaskCard.tsx     # Individual task display with completion controls
+│   ├── TaskHistoryDialog.tsx # Completed task history and management
+│   ├── TeamMemberSection.tsx # Team member task lists with history access
 │   ├── TaskFormDialog.tsx # Task creation/editing modal
 │   ├── TeamManagementDialog.tsx # Team management modal
-│   └── ui/              # shadcn/ui components
+│   └── ui/              # shadcn/ui components (button, dialog, card, etc.)
 ├── lib/                 # Utility functions
-│   ├── storage.ts       # Data persistence layer
+│   ├── jsonFileStorage.ts # Enhanced data persistence with completion tracking
 │   └── utils.ts         # General utilities
 ├── types/               # TypeScript type definitions
-│   └── index.ts         # App-wide type definitions
+│   └── index.ts         # App-wide type definitions (Task, TeamMember, AppData)
 ├── App.tsx              # Main application component
 ├── main.tsx             # Application entry point
 └── index.css            # Global styles and Tailwind imports
@@ -199,12 +235,14 @@ src/
 
 ### Key Components
 
-#### DataStorage Class
+#### JsonFileStorage Class
 Handles all data operations including:
-- Loading/saving to localStorage
-- CRUD operations for tasks and team members
+- Loading/saving to JSON file via REST API
+- CRUD operations for tasks and team members  
+- Task completion and history management
 - Task reordering and priority management
-- Workload calculations
+- Workload calculations with active/completed breakdown
+- Bulk operations (clear all completed tasks)
 
 #### Drag & Drop System
 Built with @dnd-kit for:
@@ -215,10 +253,10 @@ Built with @dnd-kit for:
 
 #### Type Safety
 Complete TypeScript coverage with interfaces for:
-- `Task`: Individual task data structure
+- `Task`: Individual task data structure with completion status and timestamps
 - `TeamMember`: Team member information
-- `AppData`: Complete application state
-- `TaskFormData`: Form validation types
+- `AppData`: Complete application state including completedTasks array
+- Extended task properties: status, completedAt, active/completed tracking
 
 ## 🎨 Customization
 
@@ -242,10 +280,16 @@ Extend the data model by:
 - **Cloud Storage**: Sync data across devices
 - **User Authentication**: Personal workspaces
 - **Advanced Reporting**: Time tracking and analytics
+- **Task Templates**: Predefined task types and categories
+- **Due Date Notifications**: Email/browser notifications for deadlines
+- **Bulk Task Operations**: Multi-select and batch operations
+- **Task Comments**: Add notes and updates to tasks
+- **Time Tracking**: Log hours spent on completed tasks
 - **Mobile App**: Native mobile version
 - **Real-time Collaboration**: Live updates across users
-- **Integration APIs**: Connect with external tools
+- **Integration APIs**: Connect with external tools (Slack, Jira, GitHub)
 - **Advanced Filtering**: Search and filter capabilities
+- **Export/Import**: CSV, Excel, and JSON data export
 
 ## 🤝 Contributing
 

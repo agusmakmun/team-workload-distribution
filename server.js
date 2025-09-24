@@ -3,6 +3,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,6 +16,149 @@ const DATA_FILE = path.join(__dirname, 'data', 'data.json');
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Team Priority API',
+      version: '1.0.0',
+      description: 'A simple API for managing team tasks and priorities',
+      contact: {
+        name: 'API Support',
+        email: 'support@teampriority.com'
+      }
+    },
+    servers: [
+      {
+        url: 'http://localhost:3001',
+        description: 'Development server'
+      }
+    ],
+    components: {
+      schemas: {
+        Task: {
+          type: 'object',
+          required: ['id', 'title', 'score', 'assignedTo', 'priority'],
+          properties: {
+            id: {
+              type: 'string',
+              description: 'Unique task identifier'
+            },
+            title: {
+              type: 'string',
+              description: 'Task title'
+            },
+            score: {
+              type: 'number',
+              description: 'Task complexity/effort score'
+            },
+            deadline: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Optional deadline for the task'
+            },
+            assignedTo: {
+              type: 'string',
+              description: 'ID of the team member assigned to this task'
+            },
+            priority: {
+              type: 'number',
+              description: 'Task priority (0 = highest priority)'
+            },
+            status: {
+              type: 'string',
+              enum: ['active', 'completed'],
+              description: 'Task status'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Task creation timestamp'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Task last update timestamp'
+            },
+            completedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Task completion timestamp'
+            }
+          }
+        },
+        TeamMember: {
+          type: 'object',
+          required: ['id', 'name', 'order'],
+          properties: {
+            id: {
+              type: 'string',
+              description: 'Unique team member identifier'
+            },
+            name: {
+              type: 'string',
+              description: 'Team member name'
+            },
+            order: {
+              type: 'number',
+              description: 'Display order (0 = first position)'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Member creation timestamp'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Member last update timestamp'
+            }
+          }
+        },
+        AppData: {
+          type: 'object',
+          properties: {
+            teamMembers: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/TeamMember'
+              }
+            },
+            tasks: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/Task'
+              }
+            },
+            completedTasks: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/Task'
+              }
+            },
+            lastUpdated: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Data last update timestamp'
+            }
+          }
+        }
+      }
+    }
+  },
+  apis: ['./server.js'] // Path to the API docs
+};
+
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
+
+// Swagger UI
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Team Priority API Documentation'
+}));
 
 // Ensure data directory and file exist
 async function ensureDataFile() {
@@ -120,7 +265,30 @@ async function writeData(data) {
 
 // API Routes
 
-// Get all data
+/**
+ * @swagger
+ * /api/data:
+ *   get:
+ *     summary: Get all application data
+ *     description: Retrieve all team members, tasks, and completed tasks
+ *     tags: [Data]
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved all data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AppData'
+ *       500:
+ *         description: Failed to read data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ */
 app.get('/api/data', async (req, res) => {
   try {
     const data = await readData();
@@ -130,7 +298,36 @@ app.get('/api/data', async (req, res) => {
   }
 });
 
-// Update all data
+/**
+ * @swagger
+ * /api/data:
+ *   put:
+ *     summary: Update all application data
+ *     description: Replace all application data with new data
+ *     tags: [Data]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AppData'
+ *     responses:
+ *       200:
+ *         description: Successfully updated all data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AppData'
+ *       500:
+ *         description: Failed to write data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ */
 app.put('/api/data', async (req, res) => {
   try {
     const updatedData = await writeData(req.body);
@@ -140,7 +337,54 @@ app.put('/api/data', async (req, res) => {
   }
 });
 
-// Task management endpoints
+/**
+ * @swagger
+ * /api/tasks:
+ *   post:
+ *     summary: Create a new task
+ *     description: Add a new task to the system
+ *     tags: [Tasks]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [title, score, assignedTo]
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Task title
+ *                 example: "Implement user authentication"
+ *               score:
+ *                 type: number
+ *                 description: Task complexity/effort score
+ *                 example: 8
+ *               deadline:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Optional deadline
+ *                 example: "2024-12-31T23:59:59.000Z"
+ *               assignedTo:
+ *                 type: string
+ *                 description: Team member ID
+ *                 example: "john-doe"
+ *               priority:
+ *                 type: number
+ *                 description: Task priority (0 = highest)
+ *                 example: 0
+ *     responses:
+ *       201:
+ *         description: Task created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Task'
+ *       400:
+ *         description: Bad request - missing required fields
+ *       500:
+ *         description: Server error
+ */
 app.post('/api/tasks', async (req, res) => {
   try {
     const data = await readData();
@@ -170,6 +414,48 @@ app.post('/api/tasks', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/tasks/{id}:
+ *   put:
+ *     summary: Update a task
+ *     description: Update an existing task by ID
+ *     tags: [Tasks]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Task ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               score:
+ *                 type: number
+ *               deadline:
+ *                 type: string
+ *                 format: date-time
+ *               assignedTo:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Task updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Task'
+ *       404:
+ *         description: Task not found
+ *       500:
+ *         description: Server error
+ */
 app.put('/api/tasks/:id', async (req, res) => {
   try {
     const data = await readData();
@@ -198,6 +484,28 @@ app.put('/api/tasks/:id', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /api/tasks/{id}:
+ *   delete:
+ *     summary: Delete a task
+ *     description: Delete a task by ID
+ *     tags: [Tasks]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Task ID
+ *     responses:
+ *       204:
+ *         description: Task deleted successfully
+ *       404:
+ *         description: Task not found
+ *       500:
+ *         description: Server error
+ */
 app.delete('/api/tasks/:id', async (req, res) => {
   try {
     const data = await readData();
@@ -281,7 +589,28 @@ app.put('/api/team-members/reorder', async (req, res) => {
   }
 });
 
-// Health check
+/**
+ * @swagger
+ * /api/health:
+ *   get:
+ *     summary: Health check
+ *     description: Check if the API server is running
+ *     tags: [System]
+ *     responses:
+ *       200:
+ *         description: Server is running
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "ok"
+ *                 message:
+ *                   type: string
+ *                   example: "Server is running"
+ */
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
