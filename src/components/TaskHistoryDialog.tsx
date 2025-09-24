@@ -6,10 +6,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Calendar, RotateCcw, Trophy, Trash2 } from 'lucide-react';
+import { Calendar, RotateCcw, Trophy, Trash2, Eraser } from 'lucide-react';
 import type { Task, TeamMember } from '@/types';
 import { format } from 'date-fns';
 import { JsonFileStorage } from '@/lib/jsonFileStorage';
@@ -125,6 +136,17 @@ export function TaskHistoryDialog({ isOpen, onClose, member, onRefresh }: TaskHi
     }
   };
 
+  const handleClearAll = async () => {
+    try {
+      const deletedCount = await JsonFileStorage.clearAllCompletedTasksForMember(member.id);
+      await loadCompletedTasks();
+      onRefresh();
+      console.log(`Cleared ${deletedCount} completed tasks for ${member.name}`);
+    } catch (error) {
+      console.error('Failed to clear all completed tasks:', error);
+    }
+  };
+
   const totalCompletedScore = completedTasks.reduce((sum, task) => sum + task.score, 0);
 
   return (
@@ -172,7 +194,40 @@ export function TaskHistoryDialog({ isOpen, onClose, member, onRefresh }: TaskHi
           )}
         </ScrollArea>
 
-        <div className="flex justify-end pt-4 border-t">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t">
+          {completedTasks.length > 0 && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                >
+                  <Eraser className="w-4 h-4 mr-2" />
+                  Clear All
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Clear All Completed Tasks?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete all {completedTasks.length} completed task{completedTasks.length !== 1 ? 's' : ''} 
+                    for {member.name} ({totalCompletedScore} points total). 
+                    This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleClearAll}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Clear All Tasks
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           <Button onClick={onClose} variant="outline">
             Close
           </Button>

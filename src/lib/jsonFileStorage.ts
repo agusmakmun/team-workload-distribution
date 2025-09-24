@@ -349,6 +349,22 @@ class JsonFileStorageClass {
     return false;
   }
 
+  async clearAllCompletedTasksForMember(memberId: string): Promise<number> {
+    const data = await this.loadData();
+    const initialLength = data.completedTasks.length;
+    
+    // Remove all completed tasks for this member
+    data.completedTasks = data.completedTasks.filter(t => t.assignedTo !== memberId);
+    
+    const deletedCount = initialLength - data.completedTasks.length;
+    
+    if (deletedCount > 0) {
+      await this.saveData(data);
+    }
+    
+    return deletedCount;
+  }
+
   async getTeamMemberWorkload(): Promise<Array<{ 
     memberId: string; 
     memberName: string; 
