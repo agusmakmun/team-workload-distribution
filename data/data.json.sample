@@ -13,18 +13,72 @@
       "order": 1,
       "createdAt": "2025-01-01T00:00:00.000Z",
       "updatedAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "example-member-3",
+      "name": "Team Member 3",
+      "order": 2,
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z"
     }
   ],
   "tasks": [
     {
       "id": "example-task-1",
-      "title": "Example Task",
+      "title": "Setup Project Repository",
       "score": 5,
-      "deadline": "2025-12-31",
+      "deadline": "2025-12-31T23:59:59.000Z",
       "assignedTo": "example-member-1",
       "priority": 0,
+      "status": "active",
       "createdAt": "2025-01-01T00:00:00.000Z",
       "updatedAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "example-task-2",
+      "title": "Design User Interface Mockups",
+      "score": 8,
+      "assignedTo": "example-member-2",
+      "priority": 0,
+      "status": "active",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "example-task-3",
+      "title": "Write Unit Tests",
+      "score": 3,
+      "deadline": "2025-06-15T23:59:59.000Z",
+      "assignedTo": "example-member-3",
+      "priority": 0,
+      "status": "active",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "updatedAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "completedTasks": [
+    {
+      "id": "example-completed-task-1",
+      "title": "Initial Project Planning",
+      "score": 2,
+      "assignedTo": "example-member-1",
+      "priority": 0,
+      "status": "completed",
+      "createdAt": "2024-12-15T00:00:00.000Z",
+      "updatedAt": "2024-12-20T10:30:00.000Z",
+      "completedAt": "2024-12-20T10:30:00.000Z"
+    },
+    {
+      "id": "example-completed-task-2",
+      "title": "Research Technology Stack",
+      "score": 4,
+      "deadline": "2024-12-18T23:59:59.000Z",
+      "assignedTo": "example-member-2",
+      "priority": 1,
+      "status": "completed",
+      "createdAt": "2024-12-10T00:00:00.000Z",
+      "updatedAt": "2024-12-18T14:45:00.000Z",
+      "completedAt": "2024-12-18T14:45:00.000Z"
     }
   ],
   "lastUpdated": "2025-01-01T00:00:00.000Z"
