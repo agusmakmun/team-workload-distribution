@@ -88,7 +88,7 @@ A simple, intuitive React.js application for managing and visualizing task prior
    # Start both API server and dev server
    npm start
    # OR start them separately:
-   # npm run server  # API server on :3001
+   # npm run server  # API server on :8980
    # npm run dev     # Frontend on :5173
    ```
 
@@ -101,7 +101,7 @@ A simple, intuitive React.js application for managing and visualizing task prior
 
 The application includes comprehensive API documentation powered by Swagger UI:
 
-- **Access URL**: http://localhost:3001/api/docs
+- **Access URL**: http://localhost:8980/api/docs
 - **Interactive Testing**: Test all API endpoints directly from the browser
 - **Complete Schemas**: Full data model documentation for Task, TeamMember, and AppData
 - **Request/Response Examples**: See exactly what data to send and expect back
@@ -139,8 +139,8 @@ docker-compose down
 
 The application will be available at:
 - **Frontend**: http://localhost:5173
-- **API**: http://localhost:3001
-- **API Docs**: http://localhost:3001/api/docs
+- **API**: http://localhost:8980
+- **API Docs**: http://localhost:8980/api/docs
 
 ## 📊 Database
 

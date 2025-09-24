@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 3001;
+const PORT = 8980;
 const DATA_FILE = path.join(__dirname, 'data', 'data.json');
 
 // Middleware
@@ -32,7 +32,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: 'http://localhost:3001',
+        url: 'http://localhost:8980',
         description: 'Development server'
       }
     ],

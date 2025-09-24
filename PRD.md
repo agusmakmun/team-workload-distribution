@@ -274,8 +274,8 @@ Team Priority Tracker is a comprehensive, production-ready web application built
 
 #### 🚀 **DEPLOYMENT STATUS:**
 - **Development Server:** Running on `http://localhost:5173`
-- **API Server:** Running on `http://localhost:3001`
-- **API Documentation:** Available at `http://localhost:3001/api/docs`
+- **API Server:** Running on `http://localhost:8980`
+- **API Documentation:** Available at `http://localhost:8980/api/docs`
 - **Database:** Active at `data/data.json` with completion tracking
 - **Status:** Fully operational and production-ready
 
@@ -378,8 +378,8 @@ team-priority/
 **Project Status:** COMPLETED & DRAMATICALLY ENHANCED  
 **Version:** 3.0 (Originally planned 1.0 - 300% feature expansion)  
 **Application URL:** http://localhost:5173  
-**API URL:** http://localhost:3001  
-**API Documentation:** http://localhost:3001/api/docs
+**API URL:** http://localhost:8980  
+**API Documentation:** http://localhost:8980/api/docs
 
 **🎯 Project exceeds all original specifications and is ready for immediate production deployment.**
 
