@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TaskCard } from "./TaskCard";
-import { Plus } from "lucide-react";
+import { Plus, History } from "lucide-react";
 import type { Task, TeamMember } from "@/types";
 import { 
   DndContext, 
@@ -26,9 +26,10 @@ interface SortableTaskCardProps {
   task: Task;
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => void;
+  onComplete: (taskId: string) => void;
 }
 
-function SortableTaskCard({ task, onEdit, onDelete }: SortableTaskCardProps) {
+function SortableTaskCard({ task, onEdit, onDelete, onComplete }: SortableTaskCardProps) {
   const {
     attributes,
     listeners,
@@ -49,6 +50,7 @@ function SortableTaskCard({ task, onEdit, onDelete }: SortableTaskCardProps) {
         task={task} 
         onEdit={onEdit} 
         onDelete={onDelete} 
+        onComplete={onComplete}
         isDragging={isDragging}
         dragListeners={listeners}
       />
@@ -61,8 +63,10 @@ interface TeamMemberSectionProps {
   tasks: Task[];
   onTaskEdit: (task: Task) => void;
   onTaskDelete: (taskId: string) => void;
+  onTaskComplete: (taskId: string) => void;
   onTaskReorder: (taskId: string, newPriority: number) => void;
   onAddTask: (memberId: string) => void;
+  onViewHistory: (memberId: string) => void;
   dragListeners?: any;
   isDragging?: boolean;
 }
@@ -72,8 +76,10 @@ export function TeamMemberSection({
   tasks, 
   onTaskEdit, 
   onTaskDelete, 
+  onTaskComplete,
   onTaskReorder,
   onAddTask,
+  onViewHistory,
   dragListeners,
   isDragging
 }: TeamMemberSectionProps) {
@@ -110,14 +116,26 @@ export function TeamMemberSection({
           >
             <CardTitle className="text-lg">{member.name}</CardTitle>
           </div>
-          <Button
-            size="sm"
-            onClick={() => onAddTask(member.id)}
-            className="h-8 px-3"
-          >
-            <Plus className="w-4 h-4 mr-1" />
-            Add Task
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onViewHistory(member.id)}
+              className="h-8 px-3"
+              title="View completed tasks"
+            >
+              <History className="w-4 h-4 mr-1" />
+              History
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => onAddTask(member.id)}
+              className="h-8 px-3"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add Task
+            </Button>
+          </div>
         </div>
         <div 
           {...dragListeners}
@@ -148,6 +166,7 @@ export function TeamMemberSection({
                     task={task}
                     onEdit={onTaskEdit}
                     onDelete={onTaskDelete}
+                    onComplete={onTaskComplete}
                   />
                 ))}
               </div>

@@ -5,6 +5,7 @@ import { TeamMemberSection } from './components/TeamMemberSection';
 import { TaskFormDialog } from './components/TaskFormDialog';
 import { TeamManagementDialog } from './components/TeamManagementDialog';
 import { ConfirmDialog } from './components/ConfirmDialog';
+import { TaskHistoryDialog } from './components/TaskHistoryDialog';
 import { JsonFileStorage } from './lib/jsonFileStorage';
 import type { AppData, Task, TaskFormData, TeamMember } from './types';
 import { 
@@ -32,8 +33,10 @@ interface SortableTeamMemberProps {
   tasks: Task[];
   onTaskEdit: (task: Task) => void;
   onTaskDelete: (taskId: string) => void;
+  onTaskComplete: (taskId: string) => void;
   onTaskReorder: (taskId: string, newPriority: number) => void;
   onAddTask: (memberId: string) => void;
+  onViewHistory: (memberId: string) => void;
 }
 
 function SortableTeamMember({ 
@@ -41,8 +44,10 @@ function SortableTeamMember({
   tasks, 
   onTaskEdit, 
   onTaskDelete, 
+  onTaskComplete,
   onTaskReorder, 
-  onAddTask 
+  onAddTask,
+  onViewHistory
 }: SortableTeamMemberProps) {
   const {
     attributes,
@@ -70,8 +75,10 @@ function SortableTeamMember({
         tasks={tasks}
         onTaskEdit={onTaskEdit}
         onTaskDelete={onTaskDelete}
+        onTaskComplete={onTaskComplete}
         onTaskReorder={onTaskReorder}
         onAddTask={onAddTask}
+        onViewHistory={onViewHistory}
         dragListeners={listeners}
         isDragging={isDragging}
       />
@@ -88,6 +95,8 @@ function App() {
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
+  const [historyMemberId, setHistoryMemberId] = useState<string | null>(null);
 
   // Load data on component mount
   useEffect(() => {
@@ -171,6 +180,20 @@ function App() {
     setTaskToDelete(null);
   };
 
+  const handleCompleteTask = async (taskId: string) => {
+    try {
+      await JsonFileStorage.completeTask(taskId);
+      await refreshData();
+    } catch (error) {
+      console.error('Failed to complete task:', error);
+    }
+  };
+
+  const handleViewHistory = (memberId: string) => {
+    setHistoryMemberId(memberId);
+    setIsHistoryDialogOpen(true);
+  };
+
   const handleTaskReorder = async (taskId: string, newPriority: number) => {
     if (!data) return;
     const task = data.tasks.find(t => t.id === taskId);
@@ -249,23 +272,30 @@ function App() {
     if (!data) return [];
     
     return data.teamMembers.map(member => {
-      const memberTasks = data.tasks.filter(t => t.assignedTo === member.id);
-      const totalScore = memberTasks.reduce((sum, task) => sum + task.score, 0);
+      const activeTasks = data.tasks.filter(t => t.assignedTo === member.id && t.status === 'active');
+      const completedTasks = (data.completedTasks || []).filter(t => t.assignedTo === member.id);
+      
+      const activeScore = activeTasks.reduce((sum, task) => sum + task.score, 0);
+      const completedScore = completedTasks.reduce((sum, task) => sum + task.score, 0);
       
       return {
         memberId: member.id,
         memberName: member.name,
-        totalScore,
-        taskCount: memberTasks.length,
+        activeScore,
+        completedScore,
+        totalScore: activeScore + completedScore,
+        activeTaskCount: activeTasks.length,
+        completedTaskCount: completedTasks.length,
+        totalTaskCount: activeTasks.length + completedTasks.length,
       };
     });
   };
 
-  // Get tasks by member
+  // Get active tasks by member
   const getTasksForMember = (memberId: string) => {
     if (!data) return [];
     return data.tasks
-      .filter(task => task.assignedTo === memberId)
+      .filter(task => task.assignedTo === memberId && task.status === 'active')
       .sort((a, b) => a.priority - b.priority);
   };
 
@@ -326,8 +356,10 @@ function App() {
                   tasks={getTasksForMember(member.id)}
                   onTaskEdit={handleEditTask}
                   onTaskDelete={handleDeleteTask}
+                  onTaskComplete={handleCompleteTask}
                   onTaskReorder={handleTaskReorder}
                   onAddTask={handleAddTask}
+                  onViewHistory={handleViewHistory}
                 />
               ))}
             </div>
@@ -368,6 +400,18 @@ function App() {
         cancelText="Cancel"
         variant="destructive"
       />
+
+      {historyMemberId && (
+        <TaskHistoryDialog
+          isOpen={isHistoryDialogOpen}
+          onClose={() => {
+            setIsHistoryDialogOpen(false);
+            setHistoryMemberId(null);
+          }}
+          member={data.teamMembers.find(m => m.id === historyMemberId)!}
+          onRefresh={refreshData}
+        />
+      )}
     </div>
   );
 }

@@ -3,7 +3,6 @@ import type { AppData, TeamMember, Task } from '@/types';
 const API_BASE_URL = 'http://localhost:3001/api';
 
 class JsonFileStorageClass {
-  private cache: AppData | null = null;
 
   async loadData(): Promise<AppData> {
     try {
@@ -12,7 +11,6 @@ class JsonFileStorageClass {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      this.cache = data;
       return data;
     } catch (error) {
       console.error('Error loading data from JSON file:', error);
@@ -23,18 +21,21 @@ class JsonFileStorageClass {
           {
             id: 'john-doe',
             name: 'John',
+            order: 0,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           },
           {
             id: 'jane-doe',
             name: 'Doe',
+            order: 1,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           },
           {
             id: 'felix-smith',
             name: 'Felix',
+            order: 2,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           },
@@ -46,6 +47,7 @@ class JsonFileStorageClass {
             score: 5,
             assignedTo: 'john-doe',
             priority: 0,
+            status: 'active',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           },
@@ -56,6 +58,7 @@ class JsonFileStorageClass {
             deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
             assignedTo: 'jane-doe',
             priority: 0,
+            status: 'active',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           },
@@ -65,6 +68,7 @@ class JsonFileStorageClass {
             score: 13,
             assignedTo: 'felix-smith',
             priority: 0,
+            status: 'active',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           },
@@ -74,14 +78,15 @@ class JsonFileStorageClass {
             score: 3,
             assignedTo: 'john-doe',
             priority: 1,
+            status: 'active',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           },
         ],
+        completedTasks: [],
         lastUpdated: new Date().toISOString(),
       };
       
-      this.cache = defaultData;
       return defaultData;
     }
   }
@@ -99,9 +104,6 @@ class JsonFileStorageClass {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      const updatedData = await response.json();
-      this.cache = updatedData;
     } catch (error) {
       console.error('Error saving data to JSON file:', error);
       throw error;
@@ -181,11 +183,12 @@ class JsonFileStorageClass {
     await this.saveData(data);
   }
 
-  async addTask(taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Promise<Task> {
+  async addTask(taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'status'>): Promise<Task> {
     const data = await this.loadData();
     const newTask: Task = {
       ...taskData,
       id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      status: 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -258,22 +261,127 @@ class JsonFileStorageClass {
   async getTasksByMember(memberId: string): Promise<Task[]> {
     const data = await this.loadData();
     return data.tasks
-      .filter(t => t.assignedTo === memberId)
+      .filter(t => t.assignedTo === memberId && t.status === 'active')
       .sort((a, b) => a.priority - b.priority);
   }
 
-  async getTeamMemberWorkload(): Promise<Array<{ memberId: string; memberName: string; totalScore: number; taskCount: number }>> {
+  async completeTask(taskId: string): Promise<Task | null> {
+    const data = await this.loadData();
+    const taskIndex = data.tasks.findIndex(t => t.id === taskId);
+    
+    if (taskIndex === -1) return null;
+    
+    const task = data.tasks[taskIndex];
+    
+    // Update task status and completion time
+    const completedTask: Task = {
+      ...task,
+      status: 'completed',
+      completedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    // Remove from active tasks and add to completed tasks
+    data.tasks.splice(taskIndex, 1);
+    data.completedTasks.push(completedTask);
+    
+    // Reorder remaining tasks for the same member
+    const remainingTasks = data.tasks
+      .filter(t => t.assignedTo === task.assignedTo)
+      .sort((a, b) => a.priority - b.priority);
+    
+    remainingTasks.forEach((t, index) => {
+      t.priority = index;
+      t.updatedAt = new Date().toISOString();
+    });
+    
+    await this.saveData(data);
+    return completedTask;
+  }
+
+  async getCompletedTasksByMember(memberId: string): Promise<Task[]> {
+    const data = await this.loadData();
+    return data.completedTasks
+      .filter(t => t.assignedTo === memberId)
+      .sort((a, b) => new Date(b.completedAt || b.updatedAt).getTime() - new Date(a.completedAt || a.updatedAt).getTime());
+  }
+
+  async restoreTask(taskId: string): Promise<Task | null> {
+    const data = await this.loadData();
+    const completedTaskIndex = data.completedTasks.findIndex(t => t.id === taskId);
+    
+    if (completedTaskIndex === -1) return null;
+    
+    const task = data.completedTasks[completedTaskIndex];
+    
+    // Get the highest priority for this member to add at the end
+    const memberTasks = data.tasks.filter(t => t.assignedTo === task.assignedTo);
+    const maxPriority = memberTasks.length > 0 ? Math.max(...memberTasks.map(t => t.priority)) : -1;
+    
+    // Restore task as active
+    const restoredTask: Task = {
+      ...task,
+      status: 'active',
+      priority: maxPriority + 1,
+      updatedAt: new Date().toISOString(),
+      completedAt: undefined,
+    };
+    
+    // Remove from completed tasks and add back to active tasks
+    data.completedTasks.splice(completedTaskIndex, 1);
+    data.tasks.push(restoredTask);
+    
+    await this.saveData(data);
+    return restoredTask;
+  }
+
+  async deleteCompletedTask(taskId: string): Promise<boolean> {
+    const data = await this.loadData();
+    const initialLength = data.completedTasks.length;
+    
+    // Remove the completed task permanently
+    data.completedTasks = data.completedTasks.filter(t => t.id !== taskId);
+    
+    if (data.completedTasks.length < initialLength) {
+      await this.saveData(data);
+      return true;
+    }
+    return false;
+  }
+
+  async getTeamMemberWorkload(): Promise<Array<{ 
+    memberId: string; 
+    memberName: string; 
+    activeScore: number;
+    completedScore: number;
+    totalScore: number; 
+    activeTaskCount: number;
+    completedTaskCount: number;
+    totalTaskCount: number;
+  }>> {
     const data = await this.loadData();
     
+    // Ensure completedTasks array exists
+    if (!data.completedTasks) {
+      data.completedTasks = [];
+    }
+    
     return data.teamMembers.map(member => {
-      const memberTasks = data.tasks.filter(t => t.assignedTo === member.id);
-      const totalScore = memberTasks.reduce((sum, task) => sum + task.score, 0);
+      const activeTasks = data.tasks.filter(t => t.assignedTo === member.id && t.status === 'active');
+      const completedTasks = data.completedTasks.filter(t => t.assignedTo === member.id);
+      
+      const activeScore = activeTasks.reduce((sum, task) => sum + task.score, 0);
+      const completedScore = completedTasks.reduce((sum, task) => sum + task.score, 0);
       
       return {
         memberId: member.id,
         memberName: member.name,
-        totalScore,
-        taskCount: memberTasks.length,
+        activeScore,
+        completedScore,
+        totalScore: activeScore + completedScore,
+        activeTaskCount: activeTasks.length,
+        completedTaskCount: completedTasks.length,
+        totalTaskCount: activeTasks.length + completedTasks.length,
       };
     });
   }

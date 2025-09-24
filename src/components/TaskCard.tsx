@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Edit2, Trash2 } from "lucide-react";
+import { Calendar, Edit2, Trash2, Check } from "lucide-react";
 import type { Task } from "@/types";
 import { format } from "date-fns";
 
@@ -8,11 +8,12 @@ interface TaskCardProps {
   task: Task;
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => void;
+  onComplete: (taskId: string) => void;
   isDragging?: boolean;
   dragListeners?: any;
 }
 
-export function TaskCard({ task, onEdit, onDelete, isDragging, dragListeners }: TaskCardProps) {
+export function TaskCard({ task, onEdit, onDelete, onComplete, isDragging, dragListeners }: TaskCardProps) {
   const isOverdue = task.deadline && new Date(task.deadline) < new Date();
   const isUpcoming = task.deadline && new Date(task.deadline) <= new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
 
@@ -46,9 +47,22 @@ export function TaskCard({ task, onEdit, onDelete, isDragging, dragListeners }: 
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
+                onComplete(task.id);
+              }}
+              className="h-6 w-6 p-0 hover:bg-green-100 hover:text-green-600"
+              title="Mark as done"
+            >
+              <Check className="w-3 h-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
                 onEdit(task);
               }}
               className="h-6 w-6 p-0 hover:bg-gray-100"
+              title="Edit task"
             >
               <Edit2 className="w-3 h-3" />
             </Button>
@@ -60,6 +74,7 @@ export function TaskCard({ task, onEdit, onDelete, isDragging, dragListeners }: 
                 onDelete(task.id);
               }}
               className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+              title="Delete task"
             >
               <Trash2 className="w-3 h-3" />
             </Button>

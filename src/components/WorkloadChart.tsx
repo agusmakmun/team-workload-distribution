@@ -1,11 +1,15 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface WorkloadData {
   memberId: string;
   memberName: string;
+  activeScore: number;
+  completedScore: number;
   totalScore: number;
-  taskCount: number;
+  activeTaskCount: number;
+  completedTaskCount: number;
+  totalTaskCount: number;
 }
 
 interface WorkloadChartProps {
@@ -18,7 +22,7 @@ export function WorkloadChart({ data }: WorkloadChartProps) {
       <CardHeader>
         <CardTitle>Team Workload Distribution</CardTitle>
         <CardDescription>
-          Total task scores by team member
+          Active vs completed task scores by team member
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -32,11 +36,26 @@ export function WorkloadChart({ data }: WorkloadChartProps) {
                 interval={0}
               />
               <YAxis />
+              <Legend 
+                formatter={(value: string) => {
+                  const labelMap: { [key: string]: string } = {
+                    activeScore: 'Active Tasks',
+                    completedScore: 'Completed Tasks'
+                  };
+                  return labelMap[value] || value;
+                }}
+                wrapperStyle={{
+                  paddingTop: '20px'
+                }}
+              />
               <Tooltip 
-                formatter={(value: number, name: string) => [
-                  `${value} points`,
-                  name === 'totalScore' ? 'Total Score' : name
-                ]}
+                formatter={(value: number, name: string) => {
+                  const labelMap: { [key: string]: string } = {
+                    activeScore: 'Active Tasks',
+                    completedScore: 'Completed Tasks'
+                  };
+                  return [`${value} points`, labelMap[name] || name];
+                }}
                 labelFormatter={(label: string) => `Team Member: ${label}`}
                 contentStyle={{
                   backgroundColor: 'white',
@@ -45,10 +64,16 @@ export function WorkloadChart({ data }: WorkloadChartProps) {
                 }}
               />
               <Bar 
-                dataKey="totalScore" 
+                dataKey="activeScore" 
                 fill="#8b5cf6" 
+                radius={[0, 0, 0, 0]}
+                name="activeScore"
+              />
+              <Bar 
+                dataKey="completedScore" 
+                fill="#22c55e" 
                 radius={[4, 4, 0, 0]}
-                name="totalScore"
+                name="completedScore"
               />
             </BarChart>
           </ResponsiveContainer>
@@ -57,8 +82,22 @@ export function WorkloadChart({ data }: WorkloadChartProps) {
           {data.map((member) => (
             <div key={member.memberId} className="text-center p-3 bg-gray-50 rounded-lg">
               <div className="font-medium">{member.memberName}</div>
-              <div className="text-sm text-gray-600">
-                {member.taskCount} task{member.taskCount !== 1 ? 's' : ''} • {member.totalScore} points
+              <div className="text-sm text-gray-600 space-y-1">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 bg-purple-500 rounded"></div>
+                    <span>{member.activeTaskCount} active ({member.activeScore}pts)</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 bg-green-500 rounded"></div>
+                    <span>{member.completedTaskCount} done ({member.completedScore}pts)</span>
+                  </div>
+                </div>
+                <div className="font-medium text-gray-800 border-t pt-1">
+                  Total: {member.totalTaskCount} tasks • {member.totalScore} points
+                </div>
               </div>
             </div>
           ))}

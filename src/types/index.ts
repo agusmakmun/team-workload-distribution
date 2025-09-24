@@ -5,8 +5,10 @@ export interface Task {
   deadline?: string; // ISO date string
   assignedTo: string; // team member id
   priority: number; // position in the list (0 = highest priority)
+  status: 'active' | 'completed';
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
+  completedAt?: string; // ISO date string when task was marked as done
 }
 
 export interface TeamMember {
@@ -20,6 +22,7 @@ export interface TeamMember {
 export interface AppData {
   teamMembers: TeamMember[];
   tasks: Task[];
+  completedTasks: Task[]; // Array of completed tasks for history
   lastUpdated: string; // ISO date string
 }
 
