@@ -21,19 +21,19 @@ export function TaskCard({ task, onEdit, onDelete, onComplete, isDragging, dragL
     <Card 
       className={`mb-2 cursor-move transition-all duration-200 ${
         isDragging ? 'rotate-2 shadow-lg scale-105' : 'hover:shadow-md'
-      } ${isOverdue ? 'border-red-300 bg-red-50' : isUpcoming ? 'border-yellow-300 bg-yellow-50' : ''}`}
+      } ${isOverdue ? 'task-overdue' : isUpcoming ? 'task-upcoming' : ''}`}
     >
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex-1" {...dragListeners}>
             <h4 className="font-medium text-sm mb-1">{task.title}</h4>
-            <div className="flex items-center gap-3 text-xs text-gray-600">
-              <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 px-2 py-1 rounded-full">
                 {task.score} pts
               </span>
               {task.deadline && (
                 <div className={`flex items-center gap-1 ${
-                  isOverdue ? 'text-red-600' : isUpcoming ? 'text-yellow-600' : 'text-gray-600'
+                  isOverdue ? 'text-red-600 dark:text-red-400' : isUpcoming ? 'text-yellow-600 dark:text-yellow-400' : 'text-muted-foreground'
                 }`}>
                   <Calendar className="w-3 h-3" />
                   <span>{format(new Date(task.deadline), 'MMM d')}</span>
@@ -61,7 +61,7 @@ export function TaskCard({ task, onEdit, onDelete, onComplete, isDragging, dragL
                 e.stopPropagation();
                 onEdit(task);
               }}
-              className="h-6 w-6 p-0 hover:bg-gray-100"
+              className="h-6 w-6 p-0 hover:bg-muted"
               title="Edit task"
             >
               <Edit2 className="w-3 h-3" />

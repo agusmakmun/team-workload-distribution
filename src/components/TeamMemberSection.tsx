@@ -139,14 +139,14 @@ export function TeamMemberSection({
         </div>
         <div 
           {...dragListeners}
-          className={`text-sm text-gray-600 cursor-grab ${isDragging ? 'cursor-grabbing' : ''}`}
+          className={`text-sm text-muted-foreground cursor-grab ${isDragging ? 'cursor-grabbing' : ''}`}
         >
           {tasks.length} task{tasks.length !== 1 ? 's' : ''} • {totalScore} pts
         </div>
       </CardHeader>
       <CardContent className="pt-0">
         {sortedTasks.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             <p className="text-sm">No tasks assigned</p>
           </div>
         ) : (

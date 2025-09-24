@@ -59,3 +59,53 @@
     color: hsl(var(--foreground));
   }
 }
+
+@layer components {
+  .bg-app {
+    background-color: hsl(var(--background));
+  }
+
+  .bg-card-alt {
+    background-color: hsl(var(--muted));
+  }
+
+  .text-muted {
+    color: hsl(var(--muted-foreground));
+  }
+
+  .border-default {
+    border-color: hsl(var(--border));
+  }
+
+  /* Task card overdue/upcoming states with dark mode support */
+  .task-overdue {
+    @apply border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/20;
+  }
+
+  .task-upcoming {
+    @apply border-yellow-300 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/20;
+  }
+
+  /* Date input styling for dark mode */
+  input[type="date"] {
+    color-scheme: light dark;
+  }
+
+  /* Date input calendar icon styling */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: none;
+  }
+
+  .dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+
+  /* Form validation styling */
+  .form-error {
+    @apply text-red-500 dark:text-red-400;
+  }
+
+  .form-error-border {
+    @apply border-red-500 dark:border-red-400;
+  }
+}

@@ -43,13 +43,13 @@ function CompletedTaskCard({ task, onRestore, onDelete }: CompletedTaskCardProps
   const wasOverdue = task.deadline && new Date(task.deadline) < completedDate;
 
   return (
-    <Card className="mb-3 bg-green-50 border-green-200">
+    <Card className="mb-3 bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-800">
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h4 className="font-medium text-sm mb-1 text-green-900">{task.title}</h4>
-            <div className="flex items-center gap-3 text-xs text-green-700">
-              <span className="bg-green-200 text-green-800 px-2 py-1 rounded-full flex items-center gap-1">
+            <h4 className="font-medium text-sm mb-1 text-green-900 dark:text-green-100">{task.title}</h4>
+            <div className="flex items-center gap-3 text-xs text-green-700 dark:text-green-300">
+              <span className="bg-green-200 text-green-800 dark:bg-green-800 dark:text-green-200 px-2 py-1 rounded-full flex items-center gap-1">
                 <Trophy className="w-3 h-3" />
                 {task.score} pts
               </span>
@@ -59,7 +59,7 @@ function CompletedTaskCard({ task, onRestore, onDelete }: CompletedTaskCardProps
               </div>
               {task.deadline && (
                 <div className={`flex items-center gap-1 ${
-                  wasOverdue ? 'text-red-600' : 'text-green-700'
+                  wasOverdue ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-300'
                 }`}>
                   <span>
                     {wasOverdue ? 'Was overdue' : 'Completed on time'}
@@ -74,7 +74,7 @@ function CompletedTaskCard({ task, onRestore, onDelete }: CompletedTaskCardProps
               variant="ghost"
               size="sm"
               onClick={() => onRestore(task.id)}
-              className="h-6 w-6 p-0 hover:bg-green-100 hover:text-green-600"
+              className="h-6 w-6 p-0 hover:bg-green-100 hover:text-green-600 dark:hover:bg-green-800 dark:hover:text-green-300"
               title="Restore to active tasks"
             >
               <RotateCcw className="w-3 h-3" />
@@ -83,7 +83,7 @@ function CompletedTaskCard({ task, onRestore, onDelete }: CompletedTaskCardProps
               variant="ghost"
               size="sm"
               onClick={() => onDelete(task.id)}
-              className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+              className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900 dark:hover:text-red-300"
               title="Delete permanently"
             >
               <Trash2 className="w-3 h-3" />
@@ -173,10 +173,10 @@ export function TaskHistoryDialog({ isOpen, onClose, member, onRefresh }: TaskHi
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
             </div>
           ) : completedTasks.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Trophy className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <div className="text-center py-8 text-muted-foreground">
+              <Trophy className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
               <p className="text-sm">No completed tasks yet.</p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-muted-foreground/75 mt-1">
                 Tasks marked as done will appear here.
               </p>
             </div>
@@ -201,7 +201,7 @@ export function TaskHistoryDialog({ isOpen, onClose, member, onRefresh }: TaskHi
                 <Button 
                   variant="outline"
                   size="sm"
-                  className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                  className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:text-red-400 dark:border-red-800 dark:hover:bg-red-900 dark:hover:text-red-300 dark:hover:border-red-700"
                 >
                   <Eraser className="w-4 h-4 mr-2" />
                   Clear All

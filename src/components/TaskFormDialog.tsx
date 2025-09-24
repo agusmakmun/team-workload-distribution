@@ -132,10 +132,10 @@ export function TaskFormDialog({
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="Enter task title"
-              className={errors.title ? 'border-red-500' : ''}
+              className={errors.title ? 'form-error-border' : ''}
             />
             {errors.title && (
-              <p className="text-sm text-red-500">{errors.title}</p>
+              <p className="text-sm form-error">{errors.title}</p>
             )}
           </div>
 
@@ -148,10 +148,10 @@ export function TaskFormDialog({
               max="100"
               value={formData.score}
               onChange={(e) => setFormData({ ...formData, score: Number(e.target.value) || 1 })}
-              className={errors.score ? 'border-red-500' : ''}
+              className={errors.score ? 'form-error-border' : ''}
             />
             {errors.score && (
-              <p className="text-sm text-red-500">{errors.score}</p>
+              <p className="text-sm form-error">{errors.score}</p>
             )}
           </div>
 
@@ -161,7 +161,7 @@ export function TaskFormDialog({
               value={formData.assignedTo} 
               onValueChange={(value) => setFormData({ ...formData, assignedTo: value })}
             >
-              <SelectTrigger className={errors.assignedTo ? 'border-red-500' : ''}>
+              <SelectTrigger className={errors.assignedTo ? 'form-error-border' : ''}>
                 <SelectValue placeholder="Select team member" />
               </SelectTrigger>
               <SelectContent>
@@ -173,12 +173,13 @@ export function TaskFormDialog({
               </SelectContent>
             </Select>
             {errors.assignedTo && (
-              <p className="text-sm text-red-500">{errors.assignedTo}</p>
+              <p className="text-sm form-error">{errors.assignedTo}</p>
             )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="deadline">Deadline (optional)</Label>
+            {/* Note: Native date input calendar popup styling is controlled by the browser */}
             <Input
               id="deadline"
               type="date"

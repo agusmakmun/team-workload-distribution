@@ -1,5 +1,6 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface WorkloadData {
   memberId: string;
@@ -17,6 +18,16 @@ interface WorkloadChartProps {
 }
 
 export function WorkloadChart({ data }: WorkloadChartProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const chartColors = {
+    grid: isDark ? '#374151' : '#e2e8f0',
+    text: isDark ? '#e5e7eb' : '#374151',
+    background: isDark ? '#1f2937' : '#ffffff',
+    border: isDark ? '#374151' : '#e2e8f0'
+  };
+
   return (
     <Card className="mb-6">
       <CardHeader>
@@ -29,13 +40,19 @@ export function WorkloadChart({ data }: WorkloadChartProps) {
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
               <XAxis 
                 dataKey="memberName" 
-                tick={{ fontSize: 12 }}
+                tick={{ fontSize: 12, fill: chartColors.text }}
                 interval={0}
+                axisLine={{ stroke: chartColors.grid }}
+                tickLine={{ stroke: chartColors.grid }}
               />
-              <YAxis />
+              <YAxis 
+                tick={{ fontSize: 12, fill: chartColors.text }}
+                axisLine={{ stroke: chartColors.grid }}
+                tickLine={{ stroke: chartColors.grid }}
+              />
               <Legend 
                 formatter={(value: string) => {
                   const labelMap: { [key: string]: string } = {
@@ -45,7 +62,8 @@ export function WorkloadChart({ data }: WorkloadChartProps) {
                   return labelMap[value] || value;
                 }}
                 wrapperStyle={{
-                  paddingTop: '20px'
+                  paddingTop: '20px',
+                  color: chartColors.text
                 }}
               />
               <Tooltip 
@@ -58,9 +76,10 @@ export function WorkloadChart({ data }: WorkloadChartProps) {
                 }}
                 labelFormatter={(label: string) => `Team Member: ${label}`}
                 contentStyle={{
-                  backgroundColor: 'white',
-                  border: '1px solid #e2e8f0',
+                  backgroundColor: chartColors.background,
+                  border: `1px solid ${chartColors.border}`,
                   borderRadius: '6px',
+                  color: chartColors.text
                 }}
               />
               <Bar 
@@ -80,9 +99,9 @@ export function WorkloadChart({ data }: WorkloadChartProps) {
         </div>
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           {data.map((member) => (
-            <div key={member.memberId} className="text-center p-3 bg-gray-50 rounded-lg">
-              <div className="font-medium">{member.memberName}</div>
-              <div className="text-sm text-gray-600 space-y-1">
+            <div key={member.memberId} className="text-center p-3 bg-muted rounded-lg">
+              <div className="font-medium text-foreground">{member.memberName}</div>
+              <div className="text-sm text-muted-foreground space-y-1">
                 <div className="flex items-center justify-center gap-2">
                   <div className="flex items-center gap-1">
                     <div className="w-3 h-3 bg-purple-500 rounded"></div>
@@ -95,7 +114,7 @@ export function WorkloadChart({ data }: WorkloadChartProps) {
                     <span>{member.completedTaskCount} done ({member.completedScore}pts)</span>
                   </div>
                 </div>
-                <div className="font-medium text-gray-800 border-t pt-1">
+                <div className="font-medium text-foreground border-t border-border pt-1">
                   Total: {member.totalTaskCount} tasks • {member.totalScore} points
                 </div>
               </div>
