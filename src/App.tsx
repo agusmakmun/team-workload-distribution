@@ -327,7 +327,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div id="app-root" className="min-h-screen bg-background">
       <Header 
         onManageTeam={() => setIsTeamDialogOpen(true)}
       />

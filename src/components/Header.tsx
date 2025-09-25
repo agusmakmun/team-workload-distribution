@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Users, Target } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
+import { ScreenshotButton } from "./ScreenshotButton";
 
 interface HeaderProps {
   onManageTeam: () => void;
@@ -21,6 +22,7 @@ export function Header({ onManageTeam }: HeaderProps) {
             </div>
           </div>
           <div className="flex gap-2">
+            <ScreenshotButton />
             <ThemeToggle />
             <Button variant="outline" onClick={onManageTeam}>
               <Users className="w-4 h-4 mr-2" />
